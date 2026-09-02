@@ -33,13 +33,32 @@
 - **感悟/易错点：**
 
 ### 3. 和为 K 的子数组（Medium）
-- **核心思路：**
+- **核心思路：** 前缀和 + 哈希表。子数组和 = 两个前缀和之差。遍历时维护 `prefix`，查 map 里 `prefix - k` 出现过几次（有就累加到 count），然后签到 `map.put(prefix, 次数+1)`。**先查再签到**，防止把空子数组（k=0 时自己查自己）算进去。
 - **代码实现：**
   ```java
+  class Solution {
+      public int subarraySum(int[] nums, int k) {
+          Map<Integer, Integer> map = new HashMap<>();
+          map.put(0, 1);   // 前缀和 0 出现 1 次（空前缀）
+
+          int prefix = 0;
+          int count = 0;
+          for (int i = 0; i < nums.length; i++) {
+              prefix += nums[i];
+              // 先查：之前出现过 prefix - k 几次，就有几个子数组和为 k
+              if (map.containsKey(prefix - k)) {
+                  count += map.get(prefix - k);
+              }
+              // 再签到：当前 prefix 次数 +1（要累加，不能覆盖）
+              map.put(prefix, map.getOrDefault(prefix, 0) + 1);
+          }
+          return count;
+      }
+  }
   ```
-- **复杂度：** O(__) / O(__)
-- **掌握程度：** ✅ 🔄 ❌
-- **感悟/易错点：**
+- **复杂度：** O(n) / O(n)
+- **掌握程度：** 🔄
+- **感悟/易错点：** ① **先查再签到**（防空子数组：k=0 时若先签到会把自己查出来多算一次）；② **签到要累加**（`getOrDefault(prefix,0)+1`），不能用 `put(prefix,1)` 覆盖；③ 方法名是 `containsKey`（带 s、K 大写）；④ `return` 要写在 for 后面、方法里面；⑤ if 后加花括号防手滑。
 
 ### 4. 滑动窗口最大值（Hard）
 - **核心思路：**
